@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { status } = require('minecraft-server-util');
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
