@@ -1,7 +1,3 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const { status } = require('minecraft-server-util');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,7 +8,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="https://api.iconify.design/mdi/minecraft.svg">
 </head>
-
 <body>
 
 <header class="hero">
@@ -32,10 +27,10 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 <section class="status">
     <h2>📡 Estado del servidor</h2>
-    <div class="status-box online">
+    <div class="status-box" id="server-status">
         <span class="dot"></span>
-        <p>Servidor ONLINE</p>
-        <small>Jugadores: 0 / 100</small>
+        <p>Conectando...</p>
+        <small id="players">- / -</small>
     </div>
 </section>
 
