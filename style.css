@@ -88,14 +88,26 @@ body {
     background: #161b22;
     padding: 20px;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
 
-.online .dot {
+.status-box .dot {
     width: 12px;
     height: 12px;
-    background: #2ea043;
     border-radius: 50%;
     display: inline-block;
+}
+
+/* Estados específicos */
+.online .dot {
+    background: #2ea043;
+}
+
+.offline .dot {
+    background: #dc3545;
 }
 
 /* FEATURES */
@@ -168,4 +180,10 @@ footer {
     padding: 20px;
     text-align: center;
     background: #010409;
+}
+
+/* ESTILO PARA EL ESTADO DEL SERVIDOR DINÁMICO */
+#serverStatus {
+    font-weight: bold;
+    font-size: 1.1rem;
 }
