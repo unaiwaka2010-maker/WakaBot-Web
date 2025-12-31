@@ -1,25 +1,33 @@
-// Función existente para copiar IP
+// Copiar IP al portapapeles
 function copiarIP() {
     const ip = document.getElementById("ip").innerText;
     navigator.clipboard.writeText(ip);
     alert("IP copiada: " + ip);
 }
 
-// Nueva función para actualizar el estado del servidor
-async function actualizarEstado() {
-    const res = await fetch('/status');
-    const data = await res.json();
-    const statusBox = document.querySelector('.status-box');
+// Mostrar status del servidor
+async function actualizarStatus() {
+    try {
+        const res = await fetch("/status");
+        const data = await res.json();
 
-    if (data.online) {
-        statusBox.classList.add('online');
-        statusBox.innerHTML = `<span class="dot"></span><p>Servidor ONLINE</p><small>Jugadores: ${data.players} / ${data.maxPlayers}</small>`;
-    } else {
-        statusBox.classList.remove('online');
-        statusBox.innerHTML = `<span class="dot"></span><p>Servidor OFFLINE</p>`;
+        const statusBox = document.getElementById("server-status");
+        const players = document.getElementById("players");
+
+        if (data.online) {
+            statusBox.className = "status-box online";
+            statusBox.querySelector("p").innerText = "Servidor ONLINE";
+            players.innerText = `${data.players} / ${data.maxPlayers}`;
+        } else {
+            statusBox.className = "status-box offline";
+            statusBox.querySelector("p").innerText = "Servidor OFFLINE";
+            players.innerText = "- / -";
+        }
+    } catch (err) {
+        console.error(err);
     }
 }
 
-// Ejecutar al cargar la página y actualizar cada 30 segundos
-actualizarEstado();
-setInterval(actualizarEstado, 30000);
+// Actualiza cada 10 segundos
+actualizarStatus();
+setInterval(actualizarStatus, 10000);
