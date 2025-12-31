@@ -1,17 +1,34 @@
-// -------------------- EXPRESS PARA RENDER --------------------
+// -------------------- IMPORTS --------------------
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { Client, GatewayIntentBits } from "discord.js";
+import { status } from "minecraft-server-util";
 
+// -------------------- EXPRESS PARA SERVIR LA WEB --------------------
 const app = express();
-
-// Rutas para servir la web
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Endpoint para consultar estado del servidor Minecraft
+app.get("/status", async (req, res) => {
+  try {
+    const result = await status("bacalaomc.aternos.me", 25565);
+    res.json({
+      online: true,
+      players: result.players.online,
+      maxPlayers: result.players.max,
+      version: result.version.name
+    });
+  } catch (err) {
+    res.json({ online: false });
+  }
 });
 
 // Puerto para Render
@@ -20,8 +37,6 @@ app.listen(PORT, () => console.log(`🌐 Web Service activo en puerto ${PORT}`))
 
 
 // -------------------- BOT DE DISCORD --------------------
-import { Client, GatewayIntentBits } from "discord.js";
-
 const TOKEN = process.env.TOKEN;
 if (!TOKEN) {
   console.error("❌ ERROR: La variable de entorno TOKEN no está definida.");
