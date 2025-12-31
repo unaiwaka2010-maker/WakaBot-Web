@@ -1,25 +1,76 @@
-const express = require('express');
-const path = require('path');
-const { status } = require('minecraft-server-util');
+// -------------------- IMPORTS --------------------
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import { Client, GatewayIntentBits } from "discord.js";
+import { status } from "minecraft-server-util";
 
+// -------------------- EXPRESS PARA LA WEB --------------------
 const app = express();
-const MINECRAFT_SERVER = "bacalaomc.aternos.me";
-const MINECRAFT_PORT = 25565;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname));
 
-app.get('/status', async (req, res) => {
-    try {
-        const response = await status(MINECRAFT_SERVER, MINECRAFT_PORT);
-        res.json({
-            online: true,
-            players: response.players.online,
-            maxPlayers: response.players.max
-        });
-    } catch {
-        res.json({ online: false, players: 0, maxPlayers: 0 });
-    }
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Endpoint para consultar estado del servidor Minecraft
+app.get("/status", async (req, res) => {
+  try {
+    const result = await status("bacalaomc.aternos.me", 25565);
+    res.json({
+      online: true,
+      players: result.players.online,
+      maxPlayers: result.players.max,
+      version: result.version.name
+    });
+  } catch (err) {
+    res.json({ online: false });
+  }
+});
+
+// Puerto para Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor web BacalaoMC activo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🌐 Web Service activo en puerto ${PORT}`));
+
+
+// -------------------- BOT DE DISCORD --------------------
+const TOKEN = process.env.TOKEN;
+if (!TOKEN) {
+  console.error("❌ ERROR: La variable de entorno TOKEN no está definida.");
+  process.exit(1);
+}
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+client.once("ready", () => console.log(`✅ Bot conectado como ${client.user.tag}`));
+
+client.on("messageCreate", async (msg) => {
+  if (msg.content !== "!verify") return;
+  if (!msg.guild) return;
+
+  const role = msg.guild.roles.cache.find(r => r.name === "Verificado");
+  if (!role) return msg.reply("❌ Rol 'Verificado' no existe");
+
+  try {
+    await msg.member.roles.add(role);
+    msg.reply("🐟 Verificado correctamente. Ya puedes entrar a BacalaoMC");
+  } catch (error) {
+    console.error("❌ Error al asignar rol:", error);
+    msg.reply("❌ No se pudo asignar el rol. Contacta con un admin.");
+  }
+});
+
+client.login(TOKEN).catch((err) => {
+  console.error("❌ No se pudo iniciar sesión. Token inválido o problemas de conexión.", err);
+  process.exit(1);
+});
